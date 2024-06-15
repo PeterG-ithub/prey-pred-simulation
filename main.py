@@ -35,24 +35,37 @@ class SimulationGUI(tk.Tk):
         label.pack()
 
     def create_params(self):
-        ttk.Label(self.params_frame, text="Hunt Success Rate").grid(row=0, column=0, padx=5, pady=5)
-        self.hunt_success = tk.DoubleVar(value=0.5)
-        ttk.Entry(self.params_frame, textvariable=self.hunt_success).grid(row=0, column=1, padx=5, pady=5)
-
-        ttk.Label(self.params_frame, text="Flee Success Rate").grid(row=1, column=0, padx=5, pady=5)
+        # Prey Parameters
+        prey_frame = ttk.LabelFrame(self.params_frame, text="Prey Parameters")
+        prey_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+        
+        ttk.Label(prey_frame, text="Flee Success Rate").grid(row=0, column=0, padx=5, pady=5)
         self.flee_success = tk.DoubleVar(value=0.5)
-        ttk.Entry(self.params_frame, textvariable=self.flee_success).grid(row=1, column=1, padx=5, pady=5)
+        ttk.Entry(prey_frame, textvariable=self.flee_success).grid(row=0, column=1, padx=5, pady=5)
 
-        ttk.Label(self.params_frame, text="Birth Rate").grid(row=2, column=0, padx=5, pady=5)
+        ttk.Label(prey_frame, text="Birth Rate").grid(row=1, column=0, padx=5, pady=5)
         self.birth_rate = tk.DoubleVar(value=0.1)
-        ttk.Entry(self.params_frame, textvariable=self.birth_rate).grid(row=2, column=1, padx=5, pady=5)
+        ttk.Entry(prey_frame, textvariable=self.birth_rate).grid(row=1, column=1, padx=5, pady=5)
 
-        ttk.Label(self.params_frame, text="Starvation Time").grid(row=3, column=0, padx=5, pady=5)
+        # Predator Parameters
+        predator_frame = ttk.LabelFrame(self.params_frame, text="Predator Parameters")
+        predator_frame.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
+        
+        ttk.Label(predator_frame, text="Hunt Success Rate").grid(row=0, column=0, padx=5, pady=5)
+        self.hunt_success = tk.DoubleVar(value=0.5)
+        ttk.Entry(predator_frame, textvariable=self.hunt_success).grid(row=0, column=1, padx=5, pady=5)
+
+        ttk.Label(predator_frame, text="Starvation Time").grid(row=1, column=0, padx=5, pady=5)
         self.starvation_time = tk.IntVar(value=5)
-        ttk.Entry(self.params_frame, textvariable=self.starvation_time).grid(row=3, column=1, padx=5, pady=5)
+        ttk.Entry(predator_frame, textvariable=self.starvation_time).grid(row=1, column=1, padx=5, pady=5)
 
         self.run_button = ttk.Button(self.params_frame, text="Run Simulation", command=self.run_simulation)
-        self.run_button.grid(row=4, column=0, columnspan=2, pady=10)
+        self.run_button.grid(row=2, column=0, padx=10, pady=10, sticky="ew")
+
+        # Ensure the sections resize correctly
+        self.params_frame.grid_rowconfigure(0, weight=1)
+        self.params_frame.grid_rowconfigure(1, weight=1)
+        self.params_frame.grid_columnconfigure(0, weight=1)
 
     def create_graph(self):
         self.figure = Figure(figsize=(10, 5), dpi=100)
