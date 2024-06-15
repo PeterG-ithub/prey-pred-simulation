@@ -2,11 +2,13 @@ import random
 
 
 class Animal:
-    def __init__(self) -> None:
+    def __init__(self, role='prey') -> None:
+        assert role in ['predator', 'prey'], "Role must be 'predator' or 'prey'"
         self.hunt_success_rate = 0.0
         self.flee_success_rate = 0.0
         self.birth_rate = 0.0
         self.starvation_time = 0
+        self.role = role
 
     def roll(self):
         return random.random()
