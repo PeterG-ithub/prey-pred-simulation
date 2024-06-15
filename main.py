@@ -30,9 +30,43 @@ class SimulationGUI(tk.Tk):
         self.create_graph()
 
     def create_grid(self):
-        # Placeholder for the grid
+        # Create a label for the grid
         label = ttk.Label(self.grid_frame, text="Simulation Grid")
         label.pack()
+
+        # Create a canvas to draw the grid with padding for the border
+        canvas_width = 600
+        canvas_height = 500
+        border_width = 2  # Adjust border width as needed
+        self.canvas = tk.Canvas(self.grid_frame, width=canvas_width + 2 * border_width,
+                                height=canvas_height + 2 * border_width, highlightthickness=0)
+        self.canvas.pack(padx=border_width, pady=border_width)
+
+        # Define the dimensions of the grid
+        grid_width = canvas_width // 20
+        grid_height = canvas_height // 20
+
+        # Draw grid lines
+        for i in range(21):
+            x = i * grid_width
+            self.canvas.create_line(x, 0, x, canvas_height, fill="gray")
+            y = i * grid_height
+            self.canvas.create_line(0, y, canvas_width, y, fill="gray")
+
+        # Create rectangles for each grid cell (optional)
+        # This is just a visual representation and can be adapted for your simulation
+        self.rectangles = []
+        for i in range(20):
+            row = []
+            for j in range(20):
+                x1, y1 = j * grid_width, i * grid_height
+                x2, y2 = x1 + grid_width, y1 + grid_height
+                rect = self.canvas.create_rectangle(x1, y1, x2, y2, fill="white", outline="gray")
+                row.append(rect)
+            self.rectangles.append(row)
+        
+        # Example: Modify a rectangle (fill with a different color)
+        # self.canvas.itemconfig(self.rectangles[0][0], fill="blue")
 
     def create_params(self):
         # Prey Parameters
@@ -107,7 +141,6 @@ class SimulationGUI(tk.Tk):
         self.params_frame.grid_rowconfigure(1, weight=1)
         self.params_frame.grid_rowconfigure(2, weight=1)
         self.params_frame.grid_columnconfigure(0, weight=1)
-
 
     def create_graph(self):
         self.figure = Figure(figsize=(10, 5), dpi=100)
