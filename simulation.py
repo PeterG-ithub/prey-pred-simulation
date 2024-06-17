@@ -47,12 +47,15 @@ class Simulation:
         self.prey_population = len(self.preys)
         self.predator_population = len(self.predators)
 
+        # Simulate Birth
+        self.simulate_birth()
+
     def create_prey(self, prey_num):
         for _ in range(prey_num):
             anim = Animal('prey')
             anim.flee_success_rate = self.prey_flee_success_rate
             self.preys.append(anim)
-        
+
         self.prey_population = len(self.preys)
 
     def create_predator(self, predator_num):
@@ -87,11 +90,19 @@ def test_simulate_one_time_step(prey_count, predator_count):
     sim.initial_prey_count = prey_count
     sim.predator_hunt_success_rate = 0.5
     sim.predator_starvation_time = 5
+    sim.prey_birth_rate = 0.3
+    sim.predator_birth_rate = 0.1
     sim.create_simulation()
 
+    print('Before:')
+    print(f'Prey population before birth: {sim.prey_population}')
+    print(f'Predator population before birth: {sim.predator_population}')
     print(f'Prey count before hunt: {len(sim.preys)}')
     print(f'Starvation time before hunt of one of the predator: {sim.predators[0].starvation_time}')
     sim.simulate_one_time_step()
+    print('After:')
+    print(f'Prey population after birth: {sim.prey_population}')
+    print(f'Predator population after birth: {sim.predator_population}')
     print(f'Prey count after hunt: {len(sim.preys)}')
     print(f'Starvation time after hunt of the same predator: {sim.predators[0].starvation_time}')
 
@@ -112,5 +123,5 @@ def test_simulate_birth(prey_count, predator_count):
 
 
 # test_create_simulation(100, 10)
-# test_simulate_one_time_step(100, 10)
-test_simulate_birth(100, 10)
+test_simulate_one_time_step(100, 10)
+# test_simulate_birth(100, 10)
