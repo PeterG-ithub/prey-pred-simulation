@@ -122,6 +122,11 @@ def test_simulate_birth(prey_count, predator_count):
     print(f'Predator population after birth: {sim.predator_population}')
 
 
+def run_simulation(sim_data):
+    print(f"Simulation data: {sim_data['prey_initial_population']}")
+    print("Simulation connected")
+
+
 # test_create_simulation(100, 10)
-test_simulate_one_time_step(100, 10)
+# test_simulate_one_time_step(100, 10)
 # test_simulate_birth(100, 10)
