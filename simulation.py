@@ -8,6 +8,7 @@ class Simulation:
         self.prey_birth_rate = 0.0
         self.prey_flee_success_rate = 0.0
         self.prey_population = self.initial_prey_count
+        self.prey_max_population = 1000
         self.predator_birth_rate = 0.0
         self.predator_hunt_success_rate = 0.0
         self.predator_starvation_time = 0
@@ -80,7 +81,6 @@ class Simulation:
 
         # Update Population
         self.prey_population = len(self.preys)
-        print(self.prey_population)
         self.predator_population = len(self.predators)
 
         # Simulate Birth
@@ -105,7 +105,10 @@ class Simulation:
 
     def simulate_birth(self):
         new_prey_num = math.ceil(self.prey_population * self.prey_birth_rate)
-        self.create_prey(new_prey_num)
+        if new_prey_num > self.prey_max_population:
+            pass
+        else:
+            self.create_prey(new_prey_num)
 
         new_predator_num = math.ceil(self.predator_population * self.predator_birth_rate)
         self.create_predator(new_predator_num)
@@ -195,7 +198,7 @@ def run_simulation(sim_data):
 
     prey_population = []
     predator_population = []
-    time_step = 100
+    time_step = 40
 
     prey_population.append(sim.prey_population)
     predator_population.append(sim.predator_population)
