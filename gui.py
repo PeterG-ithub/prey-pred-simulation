@@ -163,4 +163,26 @@ class GUI(tk.Tk):
             'hunt_success': self.hunt_success.get(),
             'starvation_time': self.starvation_time.get()
         }
-        run_simulation(sim_data)
+        timestep, prey_pop, predator_pop = run_simulation(sim_data)
+        self.update_graph(timestep, prey_pop, predator_pop)
+
+    def update_graph(self, step, prey_pop, predator_pop):
+        timestep = list(range(step + 1))
+
+        # Clear previous plots
+        self.ax.clear()
+
+        # Update title and labels after clearing
+        self.ax.set_title("Population Over Time")
+        self.ax.set_xlabel("Time Steps")
+        self.ax.set_ylabel("Population")
+
+        # Plot new data
+        self.ax.plot(timestep, prey_pop, label='Prey Population', color='blue')
+        self.ax.plot(timestep, predator_pop, label='Predator Population', color='red')
+
+        # Add legend
+        self.ax.legend()
+
+        # Redraw canvas
+        self.canvas.draw()
