@@ -28,31 +28,59 @@ class Simulation:
 
     def simulate_one_time_step(self, time_step_num=0):
         # print(f'{time_step_num}') debugging
-        predator_index = 0
-        prey_index_list = []  # List of all the hunted preys
-        for prey_index in range(len(self.preys)):
 
-            if predator_index > len(self.predators) - 1:
-                predator_index = 0
-            
-            if self.predators:
-                if self.predators[predator_index].is_hunt_successful():
-                    prey_index_list.append(prey_index)
-                    self.predators[predator_index].starvation_time = 5
+        prey_index = 0
+        predator_index_list = [] # All the predator that failed to hunt
+        for predator_index, predator in enumerate(self.predators):
+            if len(self.preys) > 0:
+
+                if prey_index > len(self.preys) - 1 or prey_index < 0:
+                    prey_index = 0
+                if predator.is_hunt_successful():
+                    # Remove prey from list
+                    self.preys.pop(prey_index)
+                    prey_index -= 1
+
+                    # Reset predator starvation time
+                    predator.starvation_time = 5
                 else:
-                    self.predators[predator_index].starvation_time -= 1
-                    # Simulate predator death
-                    if self.predators[predator_index].has_starved:
-                        self.predators.pop(predator_index)
-                        predator_index -= 1
+                    predator.starvation_time -= 1
+                    # Check if predator has starved
+                    if predator.has_starved:
+                        predator_index_list.append(predator_index)
+                prey_index += 1
+            else:
+                predator.starvation_time -= 1
+                # Check if predator has starved
+                if predator.has_starved:
+                    predator_index_list.append(predator_index)
+
+
+        # predator_index = 0
+        # prey_index_list = []  # List of all the hunted preys
+        # for prey_index in range(len(self.preys)):
+
+        #     if predator_index > len(self.predators) - 1:
+        #         predator_index = 0
             
-                predator_index += 1
+        #     if self.predators:
+        #         if self.predators[predator_index].is_hunt_successful():
+        #             prey_index_list.append(prey_index)
+        #             self.predators[predator_index].starvation_time = 5
+        #         else:
+        #             self.predators[predator_index].starvation_time -= 1
+        #             # Simulate predator death
+        #             if self.predators[predator_index].has_starved:
+        #                 self.predators.pop(predator_index)
+        #                 predator_index -= 1
+        #         predator_index += 1
 
         # Simulate Death
-        self.simulate_death(prey_index_list)
+        self.simulate_death([], predator_index_list)
 
         # Update Population
         self.prey_population = len(self.preys)
+        print(self.prey_population)
         self.predator_population = len(self.predators)
 
         # Simulate Birth
@@ -82,12 +110,22 @@ class Simulation:
         new_predator_num = math.ceil(self.predator_population * self.predator_birth_rate)
         self.create_predator(new_predator_num)
 
-    def simulate_death(self, prey_list):
+    def simulate_death(self, prey_list=[], predator_list=[]):
         if prey_list:
-            prey_list.reverse()
-            for index in prey_list:
-                self.preys.pop(index)
+            self.simulate_prey_death(prey_list)
 
+        if predator_list:
+            self.simulate_predator_death(predator_list)
+
+    def simulate_prey_death(self, prey_list):
+        prey_list.reverse()
+        for index in prey_list:
+            self.preys.pop(index)
+
+    def simulate_predator_death(self, predator_list):
+        predator_list.reverse()
+        for index in predator_list:
+            self.predators.pop(index)
 
 def test_create_simulation(prey_count, predator_count):
     sim = Simulation()
@@ -157,7 +195,7 @@ def run_simulation(sim_data):
 
     prey_population = []
     predator_population = []
-    time_step = 50
+    time_step = 100
 
     prey_population.append(sim.prey_population)
     predator_population.append(sim.predator_population)
