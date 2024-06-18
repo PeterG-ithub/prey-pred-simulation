@@ -26,7 +26,8 @@ class Simulation:
         self.prey_population = self.initial_prey_count
         self.predator_population = self.initial_predator_count
 
-    def simulate_one_time_step(self):
+    def simulate_one_time_step(self, time_step_num):
+        print(f'{time_step_num}')
         predator_index = 0
         prey_index_list = []  # List of all the hunted preys
         for prey_index in range(len(self.preys)):
@@ -123,10 +124,49 @@ def test_simulate_birth(prey_count, predator_count):
 
 
 def run_simulation(sim_data):
-    print(f"Simulation data: {sim_data['prey_initial_population']}")
-    print("Simulation connected")
+    sim = Simulation()
+    sim.initial_prey_count = sim_data['prey_initial_population']
+    sim.initial_predator_count = sim_data['predator_initial_population']
+    sim.predator_hunt_success_rate = sim_data['hunt_success']
+    sim.predator_starvation_time = sim_data['starvation_time']
+    sim.prey_birth_rate = sim_data['prey_birth_rate']
+    sim.predator_birth_rate = sim_data['predator_birth_rate']
+    sim.create_simulation()
+
+    prey_population = []
+    predator_population = []
+    time_step = 50
+
+    prey_population.append(sim.prey_population)
+    predator_population.append(sim.predator_population)
+
+    for i in range(time_step):
+        sim.simulate_one_time_step(i)
+        prey_population.append(sim.prey_population)
+        predator_population.append(sim.predator_population)
+
+    return time_step, prey_population, predator_population
+
+
+def test_run_simulation():
+    sim_data = {
+        'prey_initial_population': 100,
+        'prey_birth_rate': .3,
+        'flee_success': 0.0,
+        'predator_initial_population': 10,
+        'predator_birth_rate': .3,
+        'hunt_success': .5,
+        'starvation_time': 5
+    }
+    timestep, prey_pop, predator_pop = run_simulation(sim_data)
+
+    print(f'Timestep: {timestep}')
+    print(f'Population Length - Prey: {len(prey_pop)} - Predator: {len(predator_pop)}')
+    print(f'Prey Population: {prey_pop}')
+    print(f'Predator Population: {predator_pop}')
 
 
 # test_create_simulation(100, 10)
 # test_simulate_one_time_step(100, 10)
 # test_simulate_birth(100, 10)
+test_run_simulation()
