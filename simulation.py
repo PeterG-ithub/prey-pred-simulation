@@ -94,7 +94,6 @@ class Simulation:
         self.prey_population = self.initial_prey_count
         self.predator_population = self.initial_predator_count
 
-        self.create_resource(1000, 10, 2000)
 
     def create_prey(self, prey_num):
         for _ in range(prey_num):
@@ -154,17 +153,14 @@ class Simulation:
                 total_grass_needed -= 1
             else:
                 preys.starvation_time -= 1
-        print(f'Remaining grass amount: {self.resource.grass_amount}')
 
     def simulate_grass_growing(self):
         new_grass_amount = self.resource.grass_amount
         if new_grass_amount < 1:
             new_grass_amount = 1
-        print(f'Grass amount: {new_grass_amount}')
         new_grass_amount += new_grass_amount * self.resource.grass_growth_rate
         if new_grass_amount > self.resource.max_grass_amount:
             new_grass_amount = self.resource.max_grass_amount
-        print(f'New grass amount: {new_grass_amount}')
         self.resource.grass_amount = new_grass_amount
 
     def check_prey_starvation(self):
@@ -185,10 +181,13 @@ def run_simulation(sim_data):
     sim.predator_birth_rate = sim_data['predator_birth_rate']
     sim.prey_starvation_time = sim_data['prey_starvation_time']
     sim.create_simulation()
-
+    grass_amount = sim_data['resource_num']
+    grass_growth_rate = sim_data['resource_growth_rate']
+    grass_max = sim_data['resource_max']
+    sim.create_resource(grass_amount, grass_growth_rate, grass_max)
     prey_population = []
     predator_population = []
-    time_step = 50
+    time_step = sim_data['time_step']
 
     prey_population.append(sim.prey_population)
     predator_population.append(sim.predator_population)
@@ -267,7 +266,11 @@ def test_run_simulation():
         'predator_birth_rate': .3,
         'hunt_success': .5,
         'starvation_time': 5,
-        'prey_starvation_time': 3
+        'prey_starvation_time': 3,
+        'time_step': 200,
+        'resource_num': 1000,
+        'resource_growth_rate': 100,
+        'resource_max': 2000,
     }
     timestep, prey_pop, predator_pop = run_simulation(sim_data)
 
@@ -285,5 +288,5 @@ def test_resource_creation():
 # test_create_simulation(100, 10)
 # test_simulate_one_time_step(50, 0)
 # test_simulate_birth(100, 10)
-test_run_simulation()
+# test_run_simulation()
 # test_resource_creation()

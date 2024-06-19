@@ -114,27 +114,29 @@ class GUI(tk.Tk):
 
         # Resource Parameters
         resource_params = {
-            "Resource Growth Rate:": [0.1, 0, 1, 'double'],
-            "Resource Carrying Capacity:": [500, 100, 999, 'int'],
+            "Resource Growth Rate:": [50, 1, 100, 'int'],
+            "Resource Carrying Capacity:": [500, 1, 999, 'int'],
+            "Maximum Resources:": [2000, 1000, 2000, 'int'],
         }
         resource_frame = self.create_param_section(self.params_frame, "Resource Parameters", resource_params)
         resource_frame.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
 
         # Prey Parameters
         prey_params = {
-            "Initial Population:": [50, 10, 100, 'int'],
+            "Prey Initial Population:": [50, 10, 100, 'int'],
             "Flee Success Rate:": [0.5, 0, 1, 'double'],
-            "Birth Rate:": [0.1, 0, 1, 'double'],
+            "Prey Birth Rate:": [0.1, 0, 1, 'double'],
+            "Prey Starvation Time:": [3, 1, 10, 'int'],
         }
         prey_frame = self.create_param_section(self.params_frame, "Prey Parameters", prey_params)
         prey_frame.grid(row=2, column=0, padx=10, pady=10, sticky="nsew")
 
         # Predator Parameters
         predator_params = {
-            "Initial Population:": [20, 10, 100, 'int'],
+            "Predator Initial Population:": [0, 0, 100, 'int'],
             "Hunt Success Rate:": [0.5, 0, 1, 'double'],
-            "Birth Rate:": [0.1, 0, 1, 'double'],
-            "Starvation Time:": [5, 1, 10, 'int'],
+            "Predator Birth Rate:": [0.1, 0, 1, 'double'],
+            "Predator Starvation Time:": [5, 1, 10, 'int'],
         }
         predator_frame = self.create_param_section(self.params_frame, "Predator Parameters", predator_params)
         predator_frame.grid(row=3, column=0, padx=10, pady=10, sticky="nsew")
@@ -161,13 +163,18 @@ class GUI(tk.Tk):
 
     def run_simulation(self):
         sim_data = {
-            'prey_initial_population': self.variables["Initial Population:"].get(),
-            'prey_birth_rate': self.variables["Birth Rate:"].get(),
+            'prey_initial_population': self.variables["Prey Initial Population:"].get(),
+            'prey_birth_rate': self.variables["Prey Birth Rate:"].get(),
             'flee_success': self.variables["Flee Success Rate:"].get(),
-            'predator_initial_population': self.variables["Initial Population:"].get(),
-            'predator_birth_rate': self.variables["Birth Rate:"].get(),
+            'prey_starvation_time': self.variables["Prey Starvation Time:"].get(),
+            'predator_initial_population': self.variables["Predator Initial Population:"].get(),
+            'predator_birth_rate': self.variables["Predator Birth Rate:"].get(),
             'hunt_success': self.variables["Hunt Success Rate:"].get(),
-            'starvation_time': self.variables["Starvation Time:"].get()
+            'starvation_time': self.variables["Predator Starvation Time:"].get(),
+            'time_step': self.variables["Simulation Time (days):"].get(),
+            'resource_num': self.variables["Resource Carrying Capacity:"].get(),
+            'resource_growth_rate': self.variables["Resource Growth Rate:"].get(),
+            'resource_max': self.variables["Maximum Resources:"].get(),
         }
         timestep, prey_pop, predator_pop = run_simulation(sim_data)
         self.update_graph(timestep, prey_pop, predator_pop)
