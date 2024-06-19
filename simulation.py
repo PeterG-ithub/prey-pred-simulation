@@ -27,59 +27,13 @@ class Simulation:
         self.simulate_grass_growing()
         self.simulate_prey_eating()
         prey_index_list = self.check_prey_starvation()
+        prey_index_list += self.simulate_predator_eating()
+        predator_index_list = self.check_predator_starvation()
 
-        # prey_index = 0
-
-        # for predator_index, predator in enumerate(self.predators):
-        #     if len(self.preys) > 0:
-
-        #         if prey_index > len(self.preys) - 1 or prey_index < 0:
-        #             prey_index = 0
-        #         if predator.is_hunt_successful():
-        #             # Remove prey from list
-        #             self.preys.pop(prey_index)
-        #             prey_index -= 1
-
-        #             # Reset predator starvation time
-        #             predator.starvation_time = 5
-        #         else:
-        #             predator.starvation_time -= 1
-        #             # Check if predator has starved
-        #             if predator.has_starved:
-        #                 predator_index_list.append(predator_index)
-        #         prey_index += 1
-        #     else:
-        #         predator.starvation_time -= 1
-        #         # Check if predator has starved
-        #         if predator.has_starved:
-        #             predator_index_list.append(predator_index)
-
-
-        # predator_index = 0
-
-        # for prey_index in range(len(self.preys)):
-
-        #     if predator_index > len(self.predators) - 1:
-        #         predator_index = 0
-            
-        #     if self.predators:
-        #         if self.predators[predator_index].is_hunt_successful():
-        #             prey_index_list.append(prey_index)
-        #             self.predators[predator_index].starvation_time = 5
-        #         else:
-        #             self.predators[predator_index].starvation_time -= 1
-        #             # Simulate predator death
-        #             if self.predators[predator_index].has_starved:
-        #                 self.predators.pop(predator_index)
-        #                 predator_index -= 1
-        #         predator_index += 1
+        prey_index_list = list(dict.fromkeys(prey_index_list))  # Remove duplicate
 
         # Simulate Death
         self.simulate_death(prey_index_list, predator_index_list)
-
-        # Update Population
-        self.prey_population = len(self.preys)
-        self.predator_population = len(self.predators)
 
         # Simulate Birth
         self.simulate_birth()
@@ -93,7 +47,6 @@ class Simulation:
 
         self.prey_population = self.initial_prey_count
         self.predator_population = self.initial_predator_count
-
 
     def create_prey(self, prey_num):
         for _ in range(prey_num):
@@ -125,14 +78,17 @@ class Simulation:
         self.create_prey(new_prey_num)
 
         new_predator_num = math.ceil(self.predator_population * self.predator_birth_rate)
+        print(f'New predator num: {new_predator_num}')
         self.create_predator(new_predator_num)
+
+        self.update_population()
 
     def simulate_death(self, prey_list=[], predator_list=[]):
         if prey_list:
             self.simulate_prey_death(prey_list)
-
         if predator_list:
             self.simulate_predator_death(predator_list)
+        self.update_population()
 
     def simulate_prey_death(self, prey_list):
         prey_list.reverse()
@@ -141,6 +97,7 @@ class Simulation:
 
     def simulate_predator_death(self, predator_list):
         predator_list.reverse()
+        print(f"Predator that died: {len(predator_list)}")
         for index in predator_list:
             self.predators.pop(index)
 
@@ -153,6 +110,17 @@ class Simulation:
                 total_grass_needed -= 1
             else:
                 preys.starvation_time -= 1
+
+    def simulate_predator_eating(self):
+        total_prey = 10
+        prey_list = []
+        for index, pred in enumerate(self.predators):
+            if pred.is_hunt_successful() and index < total_prey:
+                prey_list.append(index)
+                pred.starvation_time = 2
+            else:
+                pred.starvation_time -= 1
+        return prey_list
 
     def simulate_grass_growing(self):
         new_grass_amount = self.resource.grass_amount
@@ -169,6 +137,17 @@ class Simulation:
             if prey.has_starved():
                 prey_list.append(index)
         return prey_list
+
+    def check_predator_starvation(self):
+        predator_list = []
+        for index, pred in enumerate(self.predators):
+            if pred.has_starved():
+                predator_list.append(index)
+        return predator_list
+
+    def update_population(self):
+        self.prey_population = len(self.preys)
+        self.predator_population = len(self.predators)
 
 
 def run_simulation(sim_data):
@@ -196,6 +175,8 @@ def run_simulation(sim_data):
         sim.simulate_one_time_step(i)
         prey_population.append(sim.prey_population)
         predator_population.append(sim.predator_population)
+        print(f'Prey pop: {prey_population}')
+        print(f'Predator pop: {predator_population}')
 
     return time_step, prey_population, predator_population
 
@@ -262,8 +243,8 @@ def test_run_simulation():
         'prey_initial_population': 50,
         'prey_birth_rate': .3,
         'flee_success': 0.0,
-        'predator_initial_population': 0,
-        'predator_birth_rate': .3,
+        'predator_initial_population': 1,
+        'predator_birth_rate': .1,
         'hunt_success': .5,
         'starvation_time': 5,
         'prey_starvation_time': 3,
@@ -288,5 +269,5 @@ def test_resource_creation():
 # test_create_simulation(100, 10)
 # test_simulate_one_time_step(50, 0)
 # test_simulate_birth(100, 10)
-# test_run_simulation()
+test_run_simulation()
 # test_resource_creation()
