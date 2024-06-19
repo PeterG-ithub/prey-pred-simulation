@@ -148,10 +148,17 @@ class Simulation:
             self.predators.pop(index)
 
     def simulate_prey_eating(self):
-        for index in range(self.resource.grass_amount):
+        grass_amount = self.resource.grass_amount
+        for index in range(grass_amount):
             if index > len(self.preys) - 1:
                 break
             self.preys[index].starvation_time = 3
+
+        grass_amount = grass_amount - len(self.preys)
+        if grass_amount < 1:
+            grass_amount = 1
+
+        self.resource.grass_amount = grass_amount
 
     def check_prey_starvation(self):
         prey_list = []
