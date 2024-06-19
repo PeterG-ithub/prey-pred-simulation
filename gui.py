@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from simulation import run_simulation
 
 
 class GUI(tk.Tk):
@@ -153,4 +154,35 @@ class GUI(tk.Tk):
         self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
 
     def run_simulation(self):
-        pass
+        sim_data = {
+            'prey_initial_population': self.prey_initial_population.get(),
+            'prey_birth_rate': self.prey_birth_rate.get(),
+            'flee_success': self.flee_success.get(),
+            'predator_initial_population': self.predator_initial_population.get(),
+            'predator_birth_rate': self.predator_birth_rate.get(),
+            'hunt_success': self.hunt_success.get(),
+            'starvation_time': self.starvation_time.get()
+        }
+        timestep, prey_pop, predator_pop = run_simulation(sim_data)
+        self.update_graph(timestep, prey_pop, predator_pop)
+
+    def update_graph(self, step, prey_pop, predator_pop):
+        timestep = list(range(step + 1))
+
+        # Clear previous plots
+        self.ax.clear()
+
+        # Update title and labels after clearing
+        self.ax.set_title("Population Over Time")
+        self.ax.set_xlabel("Time Steps")
+        self.ax.set_ylabel("Population")
+
+        # Plot new data
+        self.ax.plot(timestep, prey_pop, label='Prey Population', color='blue')
+        self.ax.plot(timestep, predator_pop, label='Predator Population', color='red')
+
+        # Add legend
+        self.ax.legend()
+
+        # Redraw canvas
+        self.canvas.draw()
