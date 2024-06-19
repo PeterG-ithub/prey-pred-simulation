@@ -24,6 +24,7 @@ class Simulation:
         prey_index_list = []  # List of all the preys that died
         predator_index_list = []  # List of all the predator that died
 
+        self.simulate_grass_growing()
         self.simulate_prey_eating()
         self.check_prey_starvation()
 
@@ -159,6 +160,13 @@ class Simulation:
             grass_amount = 1
 
         self.resource.grass_amount = grass_amount
+
+    def simulate_grass_growing(self):
+        new_grass_amount = self.resource.grass_amount
+        new_grass_amount += self.resource.grass_amount * self.resource.grass_growth_rate
+        if new_grass_amount > self.resource.max_grass_amount:
+            new_grass_amount = self.resource.max_grass_amount
+        self.resource.grass_amount = new_grass_amount
 
     def check_prey_starvation(self):
         prey_list = []
