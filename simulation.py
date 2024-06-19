@@ -26,7 +26,7 @@ class Simulation:
 
         self.simulate_grass_growing()
         self.simulate_prey_eating()
-        self.check_prey_starvation()
+        prey_index_list = self.check_prey_starvation()
 
         # prey_index = 0
 
@@ -123,10 +123,7 @@ class Simulation:
 
     def simulate_birth(self):
         new_prey_num = math.ceil(self.prey_population * self.prey_birth_rate)
-        if new_prey_num > self.prey_max_population:
-            pass
-        else:
-            self.create_prey(new_prey_num)
+        self.create_prey(new_prey_num)
 
         new_predator_num = math.ceil(self.predator_population * self.predator_birth_rate)
         self.create_predator(new_predator_num)
@@ -149,23 +146,25 @@ class Simulation:
             self.predators.pop(index)
 
     def simulate_prey_eating(self):
-        grass_amount = self.resource.grass_amount
-        for index in range(grass_amount):
-            if index > len(self.preys) - 1:
-                break
-            self.preys[index].starvation_time = 3
-
-        grass_amount = grass_amount - len(self.preys)
-        if grass_amount < 1:
-            grass_amount = 1
-
-        self.resource.grass_amount = grass_amount
+        total_grass_needed = len(self.preys)
+        for preys in self.preys:
+            if total_grass_needed > 0 and self.resource.grass_amount > 0:
+                preys.starvation_time = 3
+                self.resource.grass_amount -= 1
+                total_grass_needed -= 1
+            else:
+                preys.starvation_time -= 1
+        print(f'Remaining grass amount: {self.resource.grass_amount}')
 
     def simulate_grass_growing(self):
         new_grass_amount = self.resource.grass_amount
-        new_grass_amount += self.resource.grass_amount * self.resource.grass_growth_rate
+        if new_grass_amount < 1:
+            new_grass_amount = 1
+        print(f'Grass amount: {new_grass_amount}')
+        new_grass_amount += new_grass_amount * self.resource.grass_growth_rate
         if new_grass_amount > self.resource.max_grass_amount:
             new_grass_amount = self.resource.max_grass_amount
+        print(f'New grass amount: {new_grass_amount}')
         self.resource.grass_amount = new_grass_amount
 
     def check_prey_starvation(self):
@@ -184,11 +183,12 @@ def run_simulation(sim_data):
     sim.predator_starvation_time = sim_data['starvation_time']
     sim.prey_birth_rate = sim_data['prey_birth_rate']
     sim.predator_birth_rate = sim_data['predator_birth_rate']
+    sim.prey_starvation_time = sim_data['prey_starvation_time']
     sim.create_simulation()
 
     prey_population = []
     predator_population = []
-    time_step = 40
+    time_step = 50
 
     prey_population.append(sim.prey_population)
     predator_population.append(sim.predator_population)
@@ -263,10 +263,11 @@ def test_run_simulation():
         'prey_initial_population': 50,
         'prey_birth_rate': .3,
         'flee_success': 0.0,
-        'predator_initial_population': 10,
+        'predator_initial_population': 0,
         'predator_birth_rate': .3,
         'hunt_success': .5,
-        'starvation_time': 5
+        'starvation_time': 5,
+        'prey_starvation_time': 3
     }
     timestep, prey_pop, predator_pop = run_simulation(sim_data)
 
@@ -282,7 +283,7 @@ def test_resource_creation():
     print(f'Resource amount: {sim.resource.grass_amount}')
 
 # test_create_simulation(100, 10)
-test_simulate_one_time_step(50, 0)
+# test_simulate_one_time_step(50, 0)
 # test_simulate_birth(100, 10)
-# test_run_simulation()
+test_run_simulation()
 # test_resource_creation()
