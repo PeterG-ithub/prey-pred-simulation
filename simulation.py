@@ -1,4 +1,5 @@
 from animal import Animal
+from producer import Producer
 import math
 
 class Simulation:
@@ -15,17 +16,8 @@ class Simulation:
         self.predator_population = self.initial_predator_count
         self.preys = []
         self.predators = []
-        self.create_simulation()
+        self.resource: Producer
 
-    def create_simulation(self):
-        prey_num = self.initial_prey_count
-        self.create_prey(prey_num)
-
-        predator_num = self.initial_predator_count
-        self.create_predator(predator_num)
-
-        self.prey_population = self.initial_prey_count
-        self.predator_population = self.initial_predator_count
 
     def simulate_one_time_step(self, time_step_num=0):
         # print(f'{time_step_num}') debugging
@@ -86,6 +78,18 @@ class Simulation:
         # Simulate Birth
         self.simulate_birth()
 
+    def create_simulation(self):
+        prey_num = self.initial_prey_count
+        self.create_prey(prey_num)
+
+        predator_num = self.initial_predator_count
+        self.create_predator(predator_num)
+
+        self.prey_population = self.initial_prey_count
+        self.predator_population = self.initial_predator_count
+
+        self.create_resource(1000, 10)
+
     def create_prey(self, prey_num):
         for _ in range(prey_num):
             anim = Animal('prey')
@@ -102,6 +106,13 @@ class Simulation:
             self.predators.append(anim)
 
         self.predator_population = len(self.predators)
+
+    def create_resource(self, num, growth_rate, max):
+        grass = Producer()
+        grass.grass_amount = num
+        grass.grass_growth_rate = growth_rate
+        grass.max_grass_amount = max
+        self.resource = grass
 
     def simulate_birth(self):
         new_prey_num = math.ceil(self.prey_population * self.prey_birth_rate)
@@ -129,6 +140,7 @@ class Simulation:
         predator_list.reverse()
         for index in predator_list:
             self.predators.pop(index)
+
 
 def test_create_simulation(prey_count, predator_count):
     sim = Simulation()
@@ -229,7 +241,13 @@ def test_run_simulation():
     print(f'Predator Population: {predator_pop}')
 
 
+def test_resource_creation():
+    sim = Simulation()
+    sim.create_resource(1000, 10, 1000)
+    print(f'Resource amount: {sim.resource.grass_amount}')
+
 # test_create_simulation(100, 10)
-test_simulate_one_time_step(50, 10)
+# test_simulate_one_time_step(50, 10)
 # test_simulate_birth(100, 10)
 # test_run_simulation()
+test_resource_creation()
