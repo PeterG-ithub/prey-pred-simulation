@@ -12,6 +12,8 @@ class GUI(tk.Tk):
         self.title("Prey and Predator Simulation")
         self.geometry("1280x720")
 
+        self.variables = {}
+
         # Create frames
         self.grid_frame = ttk.Frame(self, width=640, height=420)
         self.grid_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
@@ -85,6 +87,9 @@ class GUI(tk.Tk):
             else:
                 raise ValueError(f"Unsupported var_type: {var_type}")
 
+            # Store the variable in the dictionary
+            self.variables[label_text] = var_instance
+
             scale = ttk.Scale(frame, variable=var_instance, from_=from_, to=to, orient=tk.HORIZONTAL)
             scale.grid(row=row*2+1, column=col*2, padx=5, pady=5, sticky="ew")
             label = ttk.Label(frame, text=f'{var_instance.get():.2f}' if var_type == 'double' else f'{var_instance.get()}')
@@ -98,6 +103,7 @@ class GUI(tk.Tk):
             scale.bind("<Motion>", update_label)
 
         return frame
+
     def create_params(self):
         # Simulation Parameters
         simulation_params = {
@@ -155,13 +161,13 @@ class GUI(tk.Tk):
 
     def run_simulation(self):
         sim_data = {
-            'prey_initial_population': self.prey_initial_population.get(),
-            'prey_birth_rate': self.prey_birth_rate.get(),
-            'flee_success': self.flee_success.get(),
-            'predator_initial_population': self.predator_initial_population.get(),
-            'predator_birth_rate': self.predator_birth_rate.get(),
-            'hunt_success': self.hunt_success.get(),
-            'starvation_time': self.starvation_time.get()
+            'prey_initial_population': self.variables["Initial Population:"].get(),
+            'prey_birth_rate': self.variables["Birth Rate:"].get(),
+            'flee_success': self.variables["Flee Success Rate:"].get(),
+            'predator_initial_population': self.variables["Initial Population:"].get(),
+            'predator_birth_rate': self.variables["Birth Rate:"].get(),
+            'hunt_success': self.variables["Hunt Success Rate:"].get(),
+            'starvation_time': self.variables["Starvation Time:"].get()
         }
         timestep, prey_pop, predator_pop = run_simulation(sim_data)
         self.update_graph(timestep, prey_pop, predator_pop)
