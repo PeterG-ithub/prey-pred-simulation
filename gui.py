@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from simulation import run_simulation
+
 
 class GUI(tk.Tk):
     def __init__(self):
@@ -10,6 +10,7 @@ class GUI(tk.Tk):
 
         self.title("Prey and Predator Simulation")
         self.geometry("1280x720")
+
         # Create frames
         self.grid_frame = ttk.Frame(self, width=640, height=420)
         self.grid_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
@@ -67,78 +68,76 @@ class GUI(tk.Tk):
         # Example: Modify a rectangle (fill with a different color)
         # self.canvas.itemconfig(self.rectangles[0][0], fill="blue")
 
+    def create_param_section(self, parent, title, params):
+        frame = ttk.LabelFrame(parent, text=title)
+        frame.grid(padx=10, pady=10, sticky="nsew")
+
+        for i, (label_text, settings) in enumerate(params.items()):
+            var, from_, to, var_type = settings
+            row, col = divmod(i, 4)  # Arrange in two columns
+            ttk.Label(frame, text=label_text).grid(row=row*2, column=col*2, padx=5, pady=5, sticky="w")
+
+            if var_type == 'int':
+                var_instance = tk.IntVar(value=var)
+            elif var_type == 'double':
+                var_instance = tk.DoubleVar(value=var)
+            else:
+                raise ValueError(f"Unsupported var_type: {var_type}")
+
+            scale = ttk.Scale(frame, variable=var_instance, from_=from_, to=to, orient=tk.HORIZONTAL)
+            scale.grid(row=row*2+1, column=col*2, padx=5, pady=5, sticky="ew")
+            label = ttk.Label(frame, text=f'{var_instance.get():.2f}' if var_type == 'double' else f'{var_instance.get()}')
+            label.grid(row=row*2+1, column=col*2+1, padx=5, pady=5, sticky="w")
+
+            def update_label(event, var_instance=var_instance, label=label, var_type=var_type):
+                value = var_instance.get()
+                formatted_value = f'{value:.2f}' if var_type == 'double' else f'{value}'
+                label.config(text=formatted_value)
+
+            scale.bind("<Motion>", update_label)
+
+        return frame
     def create_params(self):
+        # Simulation Parameters
+        simulation_params = {
+            "Simulation Time (days):": [100, 10, 365, 'int'],
+        }
+        simulation_frame = self.create_param_section(self.params_frame, "Simulation Parameters", simulation_params)
+        simulation_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+
+        # Resource Parameters
+        resource_params = {
+            "Resource Growth Rate:": [0.1, 0, 1, 'double'],
+            "Resource Carrying Capacity:": [500, 100, 999, 'int'],
+        }
+        resource_frame = self.create_param_section(self.params_frame, "Resource Parameters", resource_params)
+        resource_frame.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
+
         # Prey Parameters
-        prey_frame = ttk.LabelFrame(self.params_frame, text="Prey Parameters")
-        prey_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
-        
-        ttk.Label(prey_frame, text="Initial Population:").grid(row=0, column=0, padx=5, pady=5, sticky="w")
-        self.prey_initial_population = tk.IntVar(value=50)
-        prey_pop_slider = ttk.Scale(prey_frame, variable=self.prey_initial_population, from_=10, to=100, orient=tk.HORIZONTAL)
-        prey_pop_slider.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
-        self.prey_initial_population_label = ttk.Label(prey_frame, text=self.prey_initial_population.get())
-        self.prey_initial_population_label.grid(row=1, column=1, padx=5, pady=5, sticky="w")
-        prey_pop_slider.bind("<Motion>", lambda e: self.prey_initial_population_label.config(text=f'{self.prey_initial_population.get()}'))
-
-        ttk.Label(prey_frame, text="Flee Success Rate:").grid(row=0, column=2, padx=5, pady=5, sticky="w")
-        self.flee_success = tk.DoubleVar(value=0.5)
-        flee_success_slider = ttk.Scale(prey_frame, variable=self.flee_success, from_=0, to=1, orient=tk.HORIZONTAL)
-        flee_success_slider.grid(row=1, column=2, padx=5, pady=5, sticky="ew")
-        self.flee_success_label = ttk.Label(prey_frame, text=f'{self.flee_success.get():.2f}')
-        self.flee_success_label.grid(row=1, column=3, padx=5, pady=5, sticky="w")
-        flee_success_slider.bind("<Motion>", lambda e: self.flee_success_label.config(text=f'{self.flee_success.get():.2f}'))
-
-        ttk.Label(prey_frame, text="Birth Rate:").grid(row=2, column=0, padx=5, pady=5, sticky="w")
-        self.prey_birth_rate = tk.DoubleVar(value=0.1)
-        prey_birth_rate_slider = ttk.Scale(prey_frame, variable=self.prey_birth_rate, from_=0, to=1, orient=tk.HORIZONTAL)
-        prey_birth_rate_slider.grid(row=3, column=0, padx=5, pady=5, sticky="ew")
-        self.prey_birth_rate_label = ttk.Label(prey_frame, text=f'{self.prey_birth_rate.get():.2f}')
-        self.prey_birth_rate_label.grid(row=3, column=1, padx=5, pady=5, sticky="w")
-        prey_birth_rate_slider.bind("<Motion>", lambda e: self.prey_birth_rate_label.config(text=f'{self.prey_birth_rate.get():.2f}'))
+        prey_params = {
+            "Initial Population:": [50, 10, 100, 'int'],
+            "Flee Success Rate:": [0.5, 0, 1, 'double'],
+            "Birth Rate:": [0.1, 0, 1, 'double'],
+        }
+        prey_frame = self.create_param_section(self.params_frame, "Prey Parameters", prey_params)
+        prey_frame.grid(row=2, column=0, padx=10, pady=10, sticky="nsew")
 
         # Predator Parameters
-        predator_frame = ttk.LabelFrame(self.params_frame, text="Predator Parameters")
-        predator_frame.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
-        
-        ttk.Label(predator_frame, text="Initial Population:").grid(row=0, column=0, padx=5, pady=5, sticky="w")
-        self.predator_initial_population = tk.IntVar(value=20)
-        predator_pop_slider = ttk.Scale(predator_frame, variable=self.predator_initial_population, from_=10, to=100, orient=tk.HORIZONTAL)
-        predator_pop_slider.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
-        self.predator_initial_population_label = ttk.Label(predator_frame, text=self.predator_initial_population.get())
-        self.predator_initial_population_label.grid(row=1, column=1, padx=5, pady=5, sticky="w")
-        predator_pop_slider.bind("<Motion>", lambda e: self.predator_initial_population_label.config(text=f'{self.predator_initial_population.get()}'))
-
-        ttk.Label(predator_frame, text="Hunt Success Rate:").grid(row=0, column=2, padx=5, pady=5, sticky="w")
-        self.hunt_success = tk.DoubleVar(value=0.5)
-        hunt_success_slider = ttk.Scale(predator_frame, variable=self.hunt_success, from_=0, to=1, orient=tk.HORIZONTAL)
-        hunt_success_slider.grid(row=1, column=2, padx=5, pady=5, sticky="ew")
-        self.hunt_success_label = ttk.Label(predator_frame, text=f'{self.hunt_success.get():.2f}')
-        self.hunt_success_label.grid(row=1, column=3, padx=5, pady=5, sticky="w")
-        hunt_success_slider.bind("<Motion>", lambda e: self.hunt_success_label.config(text=f'{self.hunt_success.get():.2f}'))
-
-        ttk.Label(predator_frame, text="Birth Rate:").grid(row=2, column=0, padx=5, pady=5, sticky="w")
-        self.predator_birth_rate = tk.DoubleVar(value=0.1)
-        predator_birth_rate_slider = ttk.Scale(predator_frame, variable=self.predator_birth_rate, from_=0, to=1, orient=tk.HORIZONTAL)
-        predator_birth_rate_slider.grid(row=3, column=0, padx=5, pady=5, sticky="ew")
-        self.predator_birth_rate_label = ttk.Label(predator_frame, text=f'{self.predator_birth_rate.get():.2f}')
-        self.predator_birth_rate_label.grid(row=3, column=1, padx=5, pady=5, sticky="w")
-        predator_birth_rate_slider.bind("<Motion>", lambda e: self.predator_birth_rate_label.config(text=f'{self.predator_birth_rate.get():.2f}'))
-
-        ttk.Label(predator_frame, text="Starvation Time:").grid(row=2, column=2, padx=5, pady=5, sticky="w")
-        self.starvation_time = tk.IntVar(value=5)
-        starvation_time_slider = ttk.Scale(predator_frame, variable=self.starvation_time, from_=1, to=10, orient=tk.HORIZONTAL)
-        starvation_time_slider.grid(row=3, column=2, padx=5, pady=5, sticky="ew")
-        self.starvation_time_label = ttk.Label(predator_frame, text=self.starvation_time.get())
-        self.starvation_time_label.grid(row=3, column=3, padx=5, pady=5, sticky="w")
-        starvation_time_slider.bind("<Motion>", lambda e: self.starvation_time_label.config(text=f'{self.starvation_time.get()}'))
+        predator_params = {
+            "Initial Population:": [20, 10, 100, 'int'],
+            "Hunt Success Rate:": [0.5, 0, 1, 'double'],
+            "Birth Rate:": [0.1, 0, 1, 'double'],
+            "Starvation Time:": [5, 1, 10, 'int'],
+        }
+        predator_frame = self.create_param_section(self.params_frame, "Predator Parameters", predator_params)
+        predator_frame.grid(row=3, column=0, padx=10, pady=10, sticky="nsew")
 
         self.run_button = ttk.Button(self.params_frame, text="Run Simulation", command=self.run_simulation)
-        self.run_button.grid(row=2, column=0, padx=10, pady=10, sticky="ew")
+        self.run_button.grid(row=4, column=0, padx=10, pady=10, sticky="ew")
 
         # Ensure the sections resize correctly
-        self.params_frame.grid_rowconfigure(0, weight=1)
-        self.params_frame.grid_rowconfigure(1, weight=1)
-        self.params_frame.grid_rowconfigure(2, weight=1)
+        for i in range(5):
+            self.params_frame.grid_rowconfigure(i, weight=1)
         self.params_frame.grid_columnconfigure(0, weight=1)
 
     def create_graph(self):
@@ -154,35 +153,4 @@ class GUI(tk.Tk):
         self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
 
     def run_simulation(self):
-        sim_data = {
-            'prey_initial_population': self.prey_initial_population.get(),
-            'prey_birth_rate': self.prey_birth_rate.get(),
-            'flee_success': self.flee_success.get(),
-            'predator_initial_population': self.predator_initial_population.get(),
-            'predator_birth_rate': self.predator_birth_rate.get(),
-            'hunt_success': self.hunt_success.get(),
-            'starvation_time': self.starvation_time.get()
-        }
-        timestep, prey_pop, predator_pop = run_simulation(sim_data)
-        self.update_graph(timestep, prey_pop, predator_pop)
-
-    def update_graph(self, step, prey_pop, predator_pop):
-        timestep = list(range(step + 1))
-
-        # Clear previous plots
-        self.ax.clear()
-
-        # Update title and labels after clearing
-        self.ax.set_title("Population Over Time")
-        self.ax.set_xlabel("Time Steps")
-        self.ax.set_ylabel("Population")
-
-        # Plot new data
-        self.ax.plot(timestep, prey_pop, label='Prey Population', color='blue')
-        self.ax.plot(timestep, predator_pop, label='Predator Population', color='red')
-
-        # Add legend
-        self.ax.legend()
-
-        # Redraw canvas
-        self.canvas.draw()
+        pass
