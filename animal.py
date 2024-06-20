@@ -10,15 +10,23 @@ class Animal:
         self.starvation_time = 0
         self.role = role
 
+        self.calories = 0
+        self.max_calories = 0
+        self.maintenance_calories = 0  # Calories spent per day or time_step
+        self.hunt_calories = 0  # Calories spent when hunting
+        self.flee_calories = 0  # Calories spent when fleeing
+    
     def roll(self):
         return random.random()
 
     def is_hunt_successful(self) -> bool:
+        self.calories -= self.hunt_calories
         if self.roll() < self.hunt_success_rate:
             return True
         return False
 
     def is_flee_successful(self) -> bool:
+        self.calories -= self.flee_calories
         if self.roll() < self.flee_success_rate:
             return True
         return False
@@ -28,6 +36,10 @@ class Animal:
             return True
         return False
 
+    def eat(self, calories):
+        self.calories += calories
+        if self.calories > self.max_calories:
+            self.calories = self.max_calories
 
 def test_is_hunt_successful(hunt_success_rate, test_num=1000):
     anim = Animal()
