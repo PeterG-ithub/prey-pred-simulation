@@ -1,0 +1,26 @@
+{
+    "default_prey": {
+        "role": "prey",
+        "hunt_success_rate": 0.9,
+        "flee_success_rate": 0.1,
+        "birth_rate": 0.3,
+        "starvation_time": 0,
+        "calories": 1000,
+        "max_calories": 3000,
+        "maintenance_calories": 850,
+        "hunt_calories": 200,
+        "flee_calories": 300
+    },
+    "default_predator": {
+        "role": "predator",
+        "hunt_success_rate": 0.9,
+        "flee_success_rate": 1,
+        "birth_rate": 0.1,
+        "starvation_time": 0,
+        "calories": 3000,
+        "max_calories": 5000,
+        "maintenance_calories": 850,
+        "hunt_calories": 500,
+        "flee_calories": 200
+    }
+}
